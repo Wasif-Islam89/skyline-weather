@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="Skyline Weather - Real Weather. Real Time. Accurate weather dashboard with live forecasts, detailed atmospheric metrics, and rich glassmorphism visual design." />
+  <title>Skyline Weather</title>
+
+  <!-- Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap"
+    rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body data-theme="default">
+
+  <!-- Ambient lighting backdrops -->
+  <div class="ambient-layer" aria-hidden="true">
+    <div class="glow-orb orb-top"></div>
+    <div class="glow-orb orb-bottom"></div>
+    <div class="skyline-water-reflection"></div>
+  </div>
+
+  <div class="app-layout">
+    <!-- Top Navigation Bar -->
+    <header class="top-nav glass-panel">
+      <!-- Brand Logo & Name -->
+      <div class="nav-brand">
+        <div class="brand-icon-box">
+          <svg class="brand-cloud-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M25 12C24.4 9 21.8 6.8 18.6 6.8C16.2 6.8 14.1 8 13 10C12.4 9.8 11.7 9.7 11 9.7C7.7 9.7 5 12.4 5 15.7C5 19 7.7 21.7 11 21.7H24.5C27.5 21.7 30 19.2 30 16.2C30 13.4 27.8 12.2 25 12Z"
+              stroke="#38bdf8" stroke-width="2.2" stroke-linejoin="round" fill="rgba(56, 189, 248, 0.15)" />
+            <path d="M22 6C22.8 4.2 24.5 3 26.5 3C29.5 3 32 5.5 32 8.5C32 9.5 31.7 10.4 31.2 11.2" stroke="#facc15"
+              stroke-width="2" stroke-linecap="round" />
+            <circle cx="28.5" cy="5.5" r="0.75" fill="#facc15" />
+            <circle cx="32.5" cy="3.5" r="0.75" fill="#facc15" />
+          </svg>
+        </div>
+        <div class="brand-titles">
+          <h1 class="brand-name">Skyline <span class="brand-highlight">Weather</span></h1>
+        </div>
+      </div>
+
+      <!-- Center Search Bar -->
+      <form id="search-form" class="search-container" role="search" novalidate>
+        <i data-lucide="search" class="search-icon-prefix"></i>
+        <input id="city-input" type="text" placeholder="Search city..." value="Karachi" aria-label="Search city"
+          autocomplete="off" spellcheck="false" />
+        <button type="button" id="clear-btn" class="search-clear-btn" aria-label="Clear search input">
+          <i data-lucide="x"></i>
+        </button>
+        <button type="submit" class="search-btn" id="search-btn" aria-label="Search city">
+          <i data-lucide="search" class="search-btn-icon"></i>
+          <span class="search-btn-text">Search</span>
+        </button>
+      </form>
+
+      <!-- Right Nav Badges & Settings -->
+      <div class="nav-controls">
+        <div class="location-badge" id="nav-location-badge" title="Active Location">
+          <i data-lucide="map-pin" class="badge-pin"></i>
+          <span id="nav-city-text">Karachi, PK</span>
+        </div>
+        <button type="button" class="icon-circle-btn" id="settings-toggle-btn" aria-label="Settings" title="Settings">
+          <i data-lucide="settings"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Quick Settings Dropdown Panel -->
+    <div id="settings-panel" class="settings-modal glass-panel" hidden>
+      <div class="settings-modal-header">
+        <h4>Dashboard Settings</h4>
+        <button type="button" id="close-settings-btn" class="icon-close-btn" aria-label="Close settings">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="settings-group">
+        <label>Temperature Units</label>
+        <div class="unit-selector">
+          <button type="button" class="unit-opt active" data-unit="metric">°C Metric</button>
+          <button type="button" class="unit-opt" data-unit="imperial">°F Imperial</button>
+        </div>
+      </div>
+      <div class="settings-group">
+        <label for="api-key-input">OpenWeather API Key <span id="api-key-badge" class="badge-subtle"></span></label>
+        <input type="password" id="api-key-input" placeholder="Enter API Key(s), comma-separated" />
+        <div class="settings-btn-row">
+          <button type="button" id="save-api-key-btn" class="primary-btn-sm">Apply Key</button>
+          <button type="button" id="rotate-api-key-btn" class="secondary-btn-sm" title="Rotate to next API key in pool">Rotate Key</button>
+        </div>
+      </div>
+      <div class="settings-group">
+        <label>Quick Cities</label>
+        <div class="city-chips">
+          <button type="button" class="chip-btn" data-city="Karachi">Karachi</button>
+          <button type="button" class="chip-btn" data-city="London">London</button>
+          <button type="button" class="chip-btn" data-city="Tokyo">Tokyo</button>
+          <button type="button" class="chip-btn" data-city="New York">New York</button>
+          <button type="button" class="chip-btn" data-city="Dubai">Dubai</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alert / Toast Banner -->
+    <div id="toast-banner" class="toast-banner" hidden role="alert" aria-live="assertive">
+      <div class="toast-icon-wrap" id="toast-icon-wrap">
+        <i data-lucide="info" id="toast-icon"></i>
+      </div>
+      <span id="toast-text"></span>
+      <button type="button" id="toast-close" class="toast-close-btn" aria-label="Close notification">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+
+    <!-- Main Dashboard Area -->
+    <main class="dashboard-content" id="dashboard-content">
+      <!-- Upper Section: Hero Current Weather + Weather Details -->
+      <section class="upper-grid">
+
+        <!-- Left: Hero City Card with Coastal Skyline Background -->
+        <article class="hero-card glass-panel" id="hero-card">
+          <div class="hero-skyline-bg" id="hero-skyline-bg"></div>
+          <div class="hero-gradient-overlay"></div>
+
+          <div class="hero-inner">
+            <!-- Location & Timestamp Header -->
+            <div class="hero-meta">
+              <div class="hero-loc-row">
+                <i data-lucide="map-pin" class="hero-pin-icon"></i>
+                <h2 class="hero-location-name" id="hero-city-name">Karachi, Pakistan</h2>
+              </div>
+              <p class="hero-datetime" id="hero-datetime">Monday, 13 October 2025 &nbsp;•&nbsp; 10:24 PM</p>
+            </div>
+
+            <!-- Temperature & Condition Hero Block -->
+            <div class="hero-reading">
+              <div class="hero-temp-row">
+                <div class="hero-weather-icon-wrapper" id="hero-weather-icon">
+                  <!-- Dynamic SVG weather icon loaded here -->
+                </div>
+                <div class="hero-temperature">
+                  <span id="hero-temp-value">28</span><span class="degree-sup" id="hero-temp-unit">°C</span>
+                </div>
+              </div>
+              <h3 class="hero-condition-text" id="hero-condition-text">Partly Cloudy</h3>
+              <p class="hero-range-text">H: <span id="hero-temp-high">32°</span> &nbsp; L: <span
+                  id="hero-temp-low">26°</span></p>
+            </div>
+          </div>
+        </article>
+
+        <!-- Right: Weather Details Card (2x2 Grid) -->
+        <aside class="details-card glass-panel">
+          <div class="details-card-header">
+            <div class="header-icon-wrap">
+              <svg class="header-detail-icon" viewBox="0 0 24 24" fill="none">
+                <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" stroke="#38bdf8" stroke-width="1.8"
+                  stroke-linejoin="round" fill="rgba(56, 189, 248, 0.1)" />
+                <path d="M12 2v2M4.93 4.93l1.41 1.41M2 12h2M6.34 17.66l-1.41 1.41" stroke="#38bdf8" stroke-width="1.8"
+                  stroke-linecap="round" />
+              </svg>
+            </div>
+            <h3 class="details-title">Weather Details</h3>
+          </div>
+
+          <div class="metrics-grid">
+            <!-- 1. Feels Like -->
+            <div class="metric-box glass-panel-inner">
+              <div class="metric-icon-wrap">
+                <i data-lucide="thermometer" class="metric-icon"></i>
+              </div>
+              <span class="metric-label">Feels Like</span>
+              <span class="metric-value" id="metric-feels-like">31°C</span>
+            </div>
+
+            <!-- 2. Humidity -->
+            <div class="metric-box glass-panel-inner">
+              <div class="metric-icon-wrap">
+                <i data-lucide="droplets" class="metric-icon"></i>
+              </div>
+              <span class="metric-label">Humidity</span>
+              <span class="metric-value" id="metric-humidity">78%</span>
+            </div>
+
+            <!-- 3. Wind Speed -->
+            <div class="metric-box glass-panel-inner">
+              <div class="metric-icon-wrap">
+                <i data-lucide="wind" class="metric-icon"></i>
+              </div>
+              <span class="metric-label">Wind Speed</span>
+              <span class="metric-value" id="metric-wind-speed">18 km/h</span>
+              <span class="metric-sub-val" id="metric-wind-dir">NE <i data-lucide="arrow-up-right"
+                  class="dir-arrow"></i></span>
+            </div>
+
+            <!-- 4. Pressure -->
+            <div class="metric-box glass-panel-inner">
+              <div class="metric-icon-wrap">
+                <i data-lucide="gauge" class="metric-icon"></i>
+              </div>
+              <span class="metric-label">Pressure</span>
+              <span class="metric-value" id="metric-pressure">1010 hPa</span>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <!-- Lower Section: 5-Day Forecast Card -->
+      <section class="forecast-section glass-panel">
+        <div class="forecast-header">
+          <div class="forecast-title-row">
+            <i data-lucide="calendar" class="forecast-cal-icon"></i>
+            <h3 class="forecast-heading">5-Day Forecast</h3>
+          </div>
+          <div class="forecast-city-indicator">
+            <span id="forecast-city-label">Karachi, PK</span>
+            <i data-lucide="map-pin" class="forecast-pin-icon"></i>
+          </div>
+        </div>
+
+        <!-- 5 Forecast Cards Horizontal Row -->
+        <div class="forecast-cards-row" id="forecast-cards-container">
+          <!-- Dynamically populated -->
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer Attribution -->
+    <footer class="site-footer">
+      <p>Powered by Skyline Weather</p>
+    </footer>
+  </div>
+
+  <!-- Lucide Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <!-- Application Logic -->
+  <script src="script.js"></script>
+</body>
+
+</html>
